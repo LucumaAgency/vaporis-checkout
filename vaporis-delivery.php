@@ -164,13 +164,23 @@ add_action('woocommerce_shipping_init', function () {
             return max(0, $total);
         }
 
+        /** Cupón con "Permitir envío gratuito" marcado (como el envío gratuito nativo de Woo) */
+        private function cupon_envio_gratis() {
+            $cart = WC()->cart;
+            if ( ! $cart ) return false;
+            foreach ( $cart->get_coupons() as $cupon ) {
+                if ( $cupon->get_free_shipping() ) return true;
+            }
+            return false;
+        }
+
         public function calculate_shipping($package = []) {
             $grupo = vaporis_delivery_grupo( $package['destination'] ?? [] );
             $pref  = [ 'lima_a' => 'lima_a', 'lima_b' => 'lima_b', 'provincia' => 'prov' ][$grupo];
 
             $costo  = (float) wc_format_decimal( $this->get_option($pref . '_costo') );
             $minimo = (float) wc_format_decimal( $this->get_option($pref . '_minimo') );
-            $gratis = $minimo > 0 && $this->monto_pedido() >= $minimo;
+            $gratis = ( $minimo > 0 && $this->monto_pedido() >= $minimo ) || $this->cupon_envio_gratis();
 
             $this->add_rate([
                 'id'        => $this->get_rate_id(),
