@@ -23,6 +23,17 @@
 
 if ( ! defined('ABSPATH') ) exit;
 
+// Si otra copia del plugin ya está cargada (p. ej. la del zip en vaporis-checkout-pe/
+// y la de Deployer for Git en vaporis-checkout/), esta no hace nada: evita el error
+// fatal por clases duplicadas mientras conviven durante el cambio.
+if ( defined('VAPORIS_CHECKOUT_PE_DIR') ) {
+    add_action('admin_notices', function () {
+        echo '<div class="notice notice-warning"><p><strong>Vaporis · Checkout Perú</strong>: hay dos copias activas. Funciona la de <code>'
+           . esc_html( basename(VAPORIS_CHECKOUT_PE_DIR) ) . '</code>; desactiva y borra la que sobra.</p></div>';
+    });
+    return;
+}
+
 define('VAPORIS_CHECKOUT_PE_DIR', __DIR__);
 
 require_once __DIR__ . '/vaporis-checkout-dni.php';
