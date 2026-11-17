@@ -154,9 +154,12 @@ class Vaporis_Ubigeo {
             ) ) );
             $campo['input_class'] = ['vaporis-distrito-select'];
             unset($campo['placeholder'], $campo['autocomplete'], $campo['validate']);
+            $campo['priority'] = 70;
         } else {
             $campo['label']    = __('Departamento', 'vaporis');
             $campo['required'] = true;
+            // Departamento ANTES que distrito (el distrito depende de él)
+            $campo['priority'] = 65;
         }
     }
 
@@ -179,7 +182,13 @@ class Vaporis_Ubigeo {
         );
         $locale['PE']['state'] = array_merge(
             (array) ( $locale['PE']['state'] ?? [] ),
-            ['required' => true, 'label' => __('Departamento', 'vaporis')]
+            ['required' => true, 'label' => __('Departamento', 'vaporis'), 'priority' => 65]
+        );
+        $locale['PE']['city']['priority'] = 70;
+        // En Perú casi nadie sabe su código postal: no se pide (el ubigeo ya ubica el distrito)
+        $locale['PE']['postcode'] = array_merge(
+            (array) ( $locale['PE']['postcode'] ?? [] ),
+            ['required' => false, 'hidden' => true]
         );
         return $locale;
     }
@@ -199,6 +208,10 @@ class Vaporis_Ubigeo {
             }
             if ( isset($fields[$g][$g . '_state']) ) {
                 self::moldear($fields[$g][$g . '_state'], false);
+            }
+            if ( isset($fields[$g][$g . '_postcode']) ) {
+                $fields[$g][$g . '_postcode']['required'] = false;
+                $fields[$g][$g . '_postcode']['class'][]  = 'vaporis-oculto';
             }
         }
         return $fields;
@@ -251,6 +264,11 @@ class Vaporis_Ubigeo {
             VAPORIS_UBIGEO_VER,
             true
         );
+
+        // Código postal oculto (Woo lo vuelve a mostrar al cambiar de país si el locale no lo oculta)
+        wp_register_style('vaporis-ubigeo', false, [], VAPORIS_UBIGEO_VER);
+        wp_enqueue_style('vaporis-ubigeo');
+        wp_add_inline_style('vaporis-ubigeo', '.vaporis-oculto{display:none!important}');
 
         // Al JS se le manda ya aplanado: departamento => [etiquetas de distrito]
         $plano = [];

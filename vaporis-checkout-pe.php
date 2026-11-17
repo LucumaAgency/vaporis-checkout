@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Vaporis · Checkout Perú (DNI + Distritos)
  * Description: Campo DNI validado y desplegable de Distrito encadenado al Departamento, con los 1835 distritos del Perú. Guarda provincia y código de ubigeo en el pedido.
- * Version:     2.3.1
+ * Version:     2.4.0
  * Author:      Lucuma Agency
  * Text Domain: vaporis
  * Requires Plugins: woocommerce
